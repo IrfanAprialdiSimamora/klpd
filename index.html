@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LKPD Interaktif XI - Simulasi API MySQL Android</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f7fb;color:#18324a;line-height:1.5}
+.wrap{max-width:1100px;margin:auto;padding:18px}.hero{background:linear-gradient(135deg,#123f6b,#2582b8);color:white;padding:28px;border-radius:20px;margin-bottom:18px}.hero h1{margin:8px 0;font-size:30px}.badge{display:inline-block;background:white;color:#123f6b;padding:5px 11px;border-radius:99px;font-weight:bold;font-size:13px}
+.card{background:#fff;border:1px solid #cbddec;border-radius:17px;padding:20px;margin:18px 0;box-shadow:0 3px 12px #17324a0d}h2,h3{color:#123f6b}button{padding:11px 16px;border-radius:10px;border:1px solid #b9d0e3;background:#fff;color:#123f6b;font-weight:bold;cursor:pointer;min-height:44px}.primary{background:#123f6b;color:#fff;border-color:#123f6b}.danger{color:#a52d2d}
+.flow{display:grid;grid-template-columns:1fr 80px 1fr 80px 1fr;gap:10px;align-items:center}.actor{border:2px solid #cbddec;border-radius:15px;padding:18px;text-align:center;background:#f5faff;min-height:125px;transition:.3s}.actor.active{border-color:#2380bd;background:#e3f3ff;box-shadow:0 0 0 5px #2380bd22;transform:translateY(-3px)}.actor h3{margin:4px 0}.arrow{font-size:34px;text-align:center;color:#7a98ad}
+.simbox{margin-top:18px;border:1px solid #cbddec;border-radius:15px;overflow:hidden}.simhead{padding:15px;background:#edf7ff;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.counter{background:#123f6b;color:white;border-radius:99px;padding:4px 10px;font-size:13px}.barbg{height:10px;background:#dce8f1}.bar{height:100%;background:#2380bd;width:0;transition:.4s}
+.stage{padding:20px}.stage h3{margin-top:0}.message{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{border:1px solid #cbddec;border-radius:12px;padding:14px;background:#fbfdff}.label{font-size:12px;font-weight:bold;color:#607d93;text-transform:uppercase}.packet{background:#0e2437;color:#d8ecff;border-radius:10px;padding:14px;font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;min-height:130px}
+.explain{background:#fff8df;border-left:5px solid #e5b52f;padding:13px;border-radius:8px}.why{background:#edf9f1;border-left:5px solid #29945b;padding:13px;border-radius:8px}.mistake{background:#fff0f0;border-left:5px solid #c94d4d;padding:13px;border-radius:8px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.cardmini{padding:14px;border:1px solid #cbddec;border-radius:12px;background:#f8fbfe}
+textarea,input{width:100%;padding:10px;border:1px solid #bcd1e2;border-radius:9px;font-size:15px}.choice{display:block;padding:11px;border:1px solid #cbddec;border-radius:9px;margin:8px 0;cursor:pointer}.choice:hover{background:#edf7ff}.result{padding:12px;border-radius:9px;margin-top:10px}.ok{background:#e6f7ed;color:#17633d}.bad{background:#fff0f0;color:#963333}
+table{width:100%;border-collapse:collapse}th,td{padding:9px;border:1px solid #cbddec;text-align:left}th{background:#edf7ff}
+@media(max-width:720px){.flow{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}.message,.grid{grid-template-columns:1fr}.hero h1{font-size:24px}}
+@media print{.no-print{display:none!important}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="hero">
+<span class="badge">LKPD INTERAKTIF • KELAS XI</span>
+<h1>Integrasi API Database MySQL ke Android</h1>
+<p>Simulasi visual: pahami perjalanan <b>request → proses server → database → response → tampilan Android</b>.</p>
+</section>
+
+<section class="card">
+<h2>🎯 Cara Menggunakan Simulasi</h2>
+<div class="grid">
+<div class="cardmini"><b>1. Amati aktor</b><br>Android, API, dan MySQL memiliki tugas berbeda.</div>
+<div class="cardmini"><b>2. Ikuti paket data</b><br>Lihat request, query SQL, dan JSON yang bergerak.</div>
+<div class="cardmini"><b>3. Baca alasan</b><br>Setiap langkah menjelaskan “mengapa” proses tersebut dilakukan.</div>
+</div>
+</section>
+
+<section class="card">
+<h2>🚦 Simulasi Visual Langkah demi Langkah</h2>
+<div class="flow">
+<div class="actor" id="android"><div style="font-size:40px">📱</div><h3>Android</h3><small>Aplikasi pengguna</small></div>
+<div class="arrow">⇄</div>
+<div class="actor" id="api"><div style="font-size:40px">🌐</div><h3>API / Server</h3><small>Perantara komunikasi</small></div>
+<div class="arrow">⇄</div>
+<div class="actor" id="mysql"><div style="font-size:40px">🗄️</div><h3>MySQL</h3><small>Penyimpan data</small></div>
+</div>
+
+<div class="simbox">
+<div class="simhead">
+<strong id="stageTitle">Langkah 0 — Siap</strong>
+<span class="counter" id="counter">0 / 7</span>
+</div>
+<div class="barbg"><div class="bar" id="bar"></div></div>
+<div class="stage">
+<div class="message">
+<div class="panel">
+<div class="label">📦 Paket/data yang sedang bergerak</div>
+<div class="packet" id="packet">Klik “Mulai dari Awal”.</div>
+</div>
+<div class="panel">
+<div class="label">🧑‍🏫 Penjelasan</div>
+<div id="explain">Simulasi akan menjelaskan satu proses pada satu waktu.</div>
+</div>
+</div>
+<div style="margin-top:14px" id="why" class="why"><b>💡 Mengapa?</b><br><span id="whyText">Karena siswa perlu melihat hubungan antar komponen, bukan hanya menghafal istilah.</span></div>
+<div style="margin-top:12px" id="mistake" class="mistake"><b>⚠️ Kesalahan umum</b><br><span id="mistakeText">—</span></div>
+<div class="controls no-print">
+<button class="primary" id="start">▶ Mulai dari Awal</button>
+<button id="prev" disabled>← Sebelumnya</button>
+<button id="next" disabled>Berikutnya →</button>
+<button id="auto" disabled>▶ Otomatis</button>
+<button id="reset">↻ Ulangi</button>
+</div>
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>🔎 Lihat Isi Komunikasinya</h2>
+<div class="grid">
+<div class="cardmini"><b>Request Android</b><pre>GET /api/mahasiswa</pre><p>Android meminta data.</p></div>
+<div class="cardmini"><b>Query API → MySQL</b><pre>SELECT * FROM mahasiswa;</pre><p>Server meminta data.</p></div>
+<div class="cardmini"><b>Response API → Android</b><pre>[{"nama":"Andi","jurusan":"RPL"}]</pre><p>Data dikirim sebagai JSON.</p></div>
+</div>
+</section>
+
+<section class="card">
+<h2>🧠 Cek Pemahaman Setelah Simulasi</h2>
+<div id="quiz"></div>
+<button class="primary no-print" id="check">Periksa Jawaban</button>
+<div id="score"></div>
+</section>
+
+<section class="card">
+<h2>✍️ Aktivitas Siswa</h2>
+<label><b>Jelaskan dengan bahasamu sendiri: mengapa Android menggunakan API sebagai perantara menuju MySQL?</b></label>
+<textarea id="answer" placeholder="Tuliskan jawabanmu..."></textarea>
+<label style="display:block;margin-top:12px"><b>Bagian simulasi mana yang paling membantu pemahamanmu?</b></label>
+<textarea id="reflection" placeholder="Tuliskan refleksi..."></textarea>
+</section>
+
+<section class="card no-print">
+<h2>🧑‍🏫 Mode Guru</h2>
+<button id="keyBtn">Tampilkan Kunci Jawaban</button>
+<div id="key" style="display:none;margin-top:12px">
+<p><b>Kunci kuis:</b> 1-A, 2-B, 3-C, 4-A.</p>
+<p><b>Inti jawaban:</b> API menjadi perantara agar Android berkomunikasi dengan server secara terkontrol. Server/API yang mengakses MySQL, memproses data, kemudian mengirim response JSON kepada Android.</p>
+</div>
+</section>
+</div>
+
+<script>
+const steps=[
+{title:"Langkah 1 — Android membuat request",active:"android",
+packet:"📱 ANDROID\nGET /api/mahasiswa.php\n\nTujuan: meminta daftar mahasiswa",
+explain:"Saat siswa membuka halaman data mahasiswa, aplikasi Android membutuhkan data. Android mengirim HTTP request ke alamat API.",
+why:"Android tidak perlu mengetahui username/password database. Android cukup mengetahui alamat API dan data yang diminta.",
+mistake:"Mengira Android langsung terhubung ke MySQL."},
+{title:"Langkah 2 — Request sampai ke API",active:"api",
+packet:"📱 ANDROID  ───── GET ─────> 🌐 API\n/api/mahasiswa.php\n\nStatus: request diterima",
+explain:"Server/API menerima request. API adalah pintu masuk yang mengatur permintaan dari aplikasi Android.",
+why:"API menjadi lapisan perantara sehingga aturan akses, validasi, dan pemrosesan dapat dilakukan di server.",
+mistake:"Menganggap API adalah database. API bukan tempat utama penyimpanan data."},
+{title:"Langkah 3 — API menjalankan query",active:"api",
+packet:"🌐 API\n↓\nSQL QUERY:\nSELECT id, nama, nim, jurusan\nFROM mahasiswa;",
+explain:"Setelah menerima request, program API menjalankan perintah SQL untuk mengambil data dari tabel mahasiswa.",
+why:"SQL adalah bahasa yang digunakan untuk meminta data kepada database relasional seperti MySQL.",
+mistake:"Menulis query SQL di aplikasi Android lalu menghubungkannya langsung ke database."},
+{title:"Langkah 4 — MySQL mencari data",active:"mysql",
+packet:"🌐 API  ───── SQL ─────> 🗄️ MySQL\n\nTabel: mahasiswa\n1 | Andi | 23001 | RPL\n2 | Budi | 23002 | TKJ",
+explain:"MySQL menerima query, mencari baris yang sesuai, lalu mengembalikan hasilnya kepada API.",
+why:"Database bertugas menyimpan dan mengelola data secara terstruktur.",
+mistake:"Mengira MySQL mengirim tampilan Android. MySQL hanya mengembalikan data."},
+{title:"Langkah 5 — Data kembali ke API",active:"api",
+packet:"🗄️ MySQL ───── hasil query ─────> 🌐 API\n\nid=1, nama=Andi...\nid=2, nama=Budi...",
+explain:"Hasil query dikirim kembali dari MySQL ke program API. API kemudian menyiapkan data untuk dikirim ke Android.",
+why:"Server perlu mengubah hasil database menjadi format yang mudah dipertukarkan melalui internet.",
+mistake:"Mengira Android sudah menerima data pada tahap ini. Belum; data masih berada di server/API."},
+{title:"Langkah 6 — API mengirim JSON",active:"android",
+packet:"🌐 API ───── JSON ─────> 📱 ANDROID\n[\n {\"id\":1,\"nama\":\"Andi\",\"jurusan\":\"RPL\"},\n {\"id\":2,\"nama\":\"Budi\",\"jurusan\":\"TKJ\"}\n]",
+explain:"API mengirim response dalam format JSON. Retrofit di Android dapat membaca response ini dan mengubahnya menjadi objek/model.",
+why:"JSON ringan, terstruktur, dan umum digunakan untuk pertukaran data antara aplikasi dan API.",
+mistake:"Menganggap JSON adalah database. JSON hanya format pertukaran data."},
+{title:"Langkah 7 — Android menampilkan data",active:"android",
+packet:"📱 ANDROID\nResponse JSON diterima\n↓\nModel Mahasiswa\n↓\nRecyclerView / List\n\n✓ Andi — RPL\n✓ Budi — TKJ",
+explain:"Android menerima JSON, memprosesnya melalui Retrofit/model, lalu menampilkan data pada antarmuka.",
+why:"Inilah tujuan akhir integrasi: data yang tersimpan di MySQL dapat digunakan oleh aplikasi Android melalui API.",
+mistake:"Jika data tidak muncul, periksa endpoint, koneksi internet, response JSON, model, dan log error."}
+];
+
+let i=0,timer=null;
+const $=id=>document.getElementById(id);
+function render(){
+["android","api","mysql"].forEach(x=>$(x).classList.remove("active"));
+if(i===0){
+$("stageTitle").textContent="Langkah 0 — Siap";
+$("counter").textContent="0 / 7";$("bar").style.width="0%";
+$("packet").textContent="Klik “Mulai dari Awal”.";
+$("explain").textContent="Simulasi akan menjelaskan satu proses pada satu waktu.";
+$("whyText").textContent="Ikuti paket data dari Android sampai kembali ke Android.";
+$("mistakeText").textContent="—";
+$("prev").disabled=true;$("next").disabled=true;$("auto").disabled=true;return;
+}
+let s=steps[i-1];$(s.active).classList.add("active");
+$("stageTitle").textContent=s.title;$("counter").textContent=i+" / 7";$("bar").style.width=(i/7*100)+"%";
+$("packet").textContent=s.packet;$("explain").textContent=s.explain;$("whyText").textContent=s.why;$("mistakeText").textContent=s.mistake;
+$("prev").disabled=i<=1;$("next").disabled=i>=7;$("auto").disabled=i>=7;
+}
+$("start").onclick=()=>{i=1;render()};$("next").onclick=()=>{if(i<7){i++;render()}};
+$("prev").onclick=()=>{if(i>1){i--;render()}};
+$("reset").onclick=()=>{if(timer){clearInterval(timer);timer=null}$("auto").textContent="▶ Otomatis";i=0;render()};
+$("auto").onclick=()=>{
+if(timer){clearInterval(timer);timer=null;$("auto").textContent="▶ Otomatis";return}
+$("auto").textContent="⏸ Berhenti";timer=setInterval(()=>{if(i>=7){clearInterval(timer);timer=null;$("auto").textContent="▶ Otomatis";return}i++;render()},2200)
+};
+
+const qs=[
+["Pada langkah pertama, apa yang dikirim Android?",["Request HTTP ke API","Query SQL langsung ke MySQL","File APK ke MySQL","Tampilan XML"],0],
+["Siapa yang menjalankan SELECT * FROM mahasiswa?",["Android","API/server","MySQL sendiri tanpa request","RecyclerView"],1],
+["Dalam simulasi, JSON berfungsi sebagai...",["Database","Bahasa pemrograman","Format pertukaran data","Sistem operasi"],2],
+["Urutan alur yang benar adalah...",["Android → API → MySQL → API → Android","Android → MySQL → Android","MySQL → Android → API","API → Android → MySQL"] ,0]
+];
+$("quiz").innerHTML=qs.map((q,n)=>"<div style='margin:18px 0'><b>"+(n+1)+". "+q[0]+"</b>"+q[1].map((x,j)=>"<label class='choice'><input type='radio' name='q"+n+"' value='"+j+"'> "+x+"</label>").join("")+"</div>").join("");
+$("check").onclick=()=>{
+let s=0;qs.forEach((q,n)=>{let a=document.querySelector('input[name="q'+n+'"]:checked');if(a&&+a.value===q[2])s++});
+$("score").className="result "+(s>=3?"ok":"bad");$("score").textContent="Skor: "+s+"/4 ("+(s*25)+"%).";
+};
+$("keyBtn").onclick=()=>{let x=$("key");x.style.display=x.style.display==="none"?"block":"none"};
+render();
+</script>
+</body>
+</html>
